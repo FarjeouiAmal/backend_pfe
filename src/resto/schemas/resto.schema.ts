@@ -14,6 +14,10 @@ export class Resto {
   save(): Resto | PromiseLike<Resto> {
     throw new Error('Method not implemented.');
   }
+
+  @Prop({ default: 'resto' })
+  role: string;
+
   @Prop()
   name: string;
 
@@ -23,8 +27,12 @@ export class Resto {
   @Prop()
   password: string;
 
-  @Prop({ default: 'resto' })
-  role: string;
+  @Prop()
+  adresse: string;
+
+
+  @Prop()
+  telephone: string;
 
   @Prop({ default: null })
   resetToken: string | null;

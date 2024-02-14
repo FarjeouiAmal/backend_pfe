@@ -35,8 +35,9 @@ export class RestoService {
     return Resto;
   }
 
-  async findByEmail(email: string): Promise<Resto | null> {
+  async findByEmail(email: string): Promise<Resto> {
     const Resto = await this.restoModel.findOne({ email });
+    
     return Resto;
   }
 
@@ -45,7 +46,7 @@ export class RestoService {
   }
 
   async updateById(id: string, Resto: Resto): Promise<Resto> {
-    const existingUser = await this.restoModel.findById(id);
+    const existingUser = await this.restoModel.findOne({id});
 
     if (!existingUser) {
       throw new NotFoundException('Resto not found.');
@@ -62,5 +63,20 @@ export class RestoService {
 
   async deleteById(id: string): Promise<Resto> {
     return await this.restoModel.findByIdAndDelete(id);
+  }
+
+  async findByName(name: string): Promise<Resto | null> {
+    const resto = await this.restoModel.findOne({ name });
+    return resto;
+  }
+
+  async findByTelephone(telephone: string): Promise<Resto | null> {
+    const resto = await this.restoModel.findOne({ telephone });
+    return resto;
+  }
+
+  async findByAdresse(adresse: string): Promise<Resto | null> {
+    const resto = await this.restoModel.findOne({ adresse });
+    return resto;
   }
 }

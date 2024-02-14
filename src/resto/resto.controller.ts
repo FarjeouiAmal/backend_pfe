@@ -27,6 +27,26 @@ export class RestoController {
     return this.restoService.findById(id);  
   }
 
+  @Get('name/:name')
+  async searchRestoByName(@Param('name') name: string): Promise<Resto | null> {
+    return this.restoService.findByName(name);
+  }
+
+  @Get('email/:email')
+  async searchRestoByEmail(@Param('email') email: string): Promise<Resto | null> {
+    return this.restoService.findByEmail(email);
+  }
+
+  @Get('telephone/:telephone')
+  async searchRestoByTelephone(@Param('telephone') telephone: string): Promise<Resto | null> {
+    return this.restoService.findByTelephone(telephone);
+  }
+
+  @Get('adresse/:adresse')
+  async searchRestoByAdresse(@Param('adresse') adresse: string): Promise<Resto | null> {
+    return this.restoService.findByAdresse(adresse);
+
+  }
   @Put(':id')
   async updateResto(@Param('id') id: string, @Body() restoDto: UpdateRestoDto): Promise<Resto> {
     const restoInstance = new Resto(restoDto);

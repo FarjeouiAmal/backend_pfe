@@ -1,25 +1,26 @@
-import { IsNotEmpty, IsString, IsNumber } from "class-validator";
+import { Prop } from "@nestjs/mongoose";
+import { IsNotEmpty, IsString} from "class-validator";
+
 
 export class CreatedRestoDto {
   @IsNotEmpty()
   readonly email: string;
 
-  @IsNotEmpty()
-  readonly password: string;
+  @Prop({ default: 'resto' })
+  role: string;
 
   @IsNotEmpty()
   @IsString()
-  readonly nom: string;
+  readonly name: string;
 
   @IsNotEmpty()
   @IsString()
   readonly adresse: string;
 
   @IsNotEmpty()
-  @IsNumber()
-  readonly téléphone: number; 
+  readonly telephone: string; 
 
-  role: string; // Set the role directly to 'resto'
+  
 
   @IsNotEmpty()
   @IsString()
@@ -27,5 +28,4 @@ export class CreatedRestoDto {
 
   @IsNotEmpty()
   readonly dateInscrit: Date;
-
 }
