@@ -1,14 +1,15 @@
-import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
+// auth.service.ts
+
+import { Injectable, UnauthorizedException, BadRequestException, UseGuards } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { SignInDto } from './dto/SignIn.dto';
-import { PasswordResetDto } from './dto/password-reset.dto';
 import { MailerService } from '@nestjs-modules/mailer';
-import { RestoService } from 'src/resto/resto.service';
-import * as crypto from 'crypto'; // Import the crypto module
-import { User, UserDocument } from './schemas/user.schema';
+import { UserService } from 'src/users/user.service';
+import * as crypto from 'crypto';
+import { User, UserDocument } from 'src/users/entity/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -17,7 +18,7 @@ export class AuthService {
     private UserModel: Model<UserDocument>,
     private jwtService: JwtService,
     private readonly mailerService: MailerService,
-    private readonly restoService: RestoService, // Inject the RestoService
+    private readonly userService: UserService, 
   ) {}
 
   async createDefaultAdmin(): Promise<void> {
@@ -58,12 +59,12 @@ export class AuthService {
   }
 
   async sendPasswordResetEmail(email: string): Promise<void> {
-    const resto = await this.restoService.findByEmail(email); // Use restoService instead of userService
+    const resto = await this.userService.findByEmail(email); // Use restoService instead of userService
     if (resto) {
       const resetToken = crypto.randomBytes(32).toString('hex'); // Generate a secure random token
       resto.resetToken = resetToken;
       resto.resetTokenExpires = new Date(Date.now() + 3600000); // Token valid for 1 hour
-      await this.restoService.save(resto);
+      await this.userService.save(resto);
 
       // Send reset email
       await this.mailerService.sendMail({
@@ -98,6 +99,15 @@ export class AuthService {
       await user.save();
     } catch (error) {
       throw new BadRequestException('Failed to reset password');
+    }
+  }
+
+  async decodeToken(token: string): Promise<any> {
+    try {
+      const decoded = this.jwtService.verify(token);
+      return decoded;
+    } catch (error) {
+      throw new UnauthorizedException('Invalid or expired token');
     }
   }
 }

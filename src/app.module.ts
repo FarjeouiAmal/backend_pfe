@@ -1,11 +1,13 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { RestoModule } from './resto/resto.module';
+import { UserModule } from './users/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
-import { MailModule } from './mail/mail.module';
+import { MailModule } from './auth/mail/mail.module';
+
+
 
 @Module({
   imports: [
@@ -14,11 +16,18 @@ import { MailModule } from './mail/mail.module';
       isGlobal: true,
     }),
     MongooseModule.forRoot(process.env.DB_URI),
-    RestoModule,
+    UserModule,
     AuthModule,
     MailModule,
+  
   ],
   controllers: [AppController],
   providers: [AppService],
+
+  
 })
-export class AppModule {}
+export class AppModule  {
+  // configure(consumer: MiddlewareConsumer) {
+  //   consumer.apply(AuthenticationMiddleware).forRoutes('*');
+  // }
+}

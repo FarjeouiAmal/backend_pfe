@@ -1,15 +1,18 @@
+// auth.module.ts
+
 import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { UserSchema } from './schemas/user.schema';
+import { UserSchema } from 'src/users/entity/user.entity';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule, ConfigService } from '@nestjs/config'; // Import ConfigModule and ConfigService
-import { MailService } from 'src/mail/mail.service';
-import { RestoService } from 'src/resto/resto.service';
-import { RestoModule } from 'src/resto/resto.module';
-import { RestoSchema } from 'src/resto/schemas/resto.schema';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MailService } from 'src/auth/mail/mail.service';
+import { UserService } from 'src/users/user.service';
+import { UserModule } from 'src/users/user.module';
+import { JwtAuthGuard } from './jwt/jwt-auth.guard';
+import { JwtStrategy } from './jwt/jwt.strategy'; // Import the JwtStrategy
 
 @Module({
   imports: [
@@ -24,15 +27,14 @@ import { RestoSchema } from 'src/resto/schemas/resto.schema';
       }),
     }),
     MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
-    ConfigModule, // Include ConfigModule to use ConfigService
-    RestoModule, // Include RestoModule in the imports array
-
-    MongooseModule.forFeature([{ name: 'Resto', schema: RestoSchema }]),
-    ConfigModule, // Include ConfigModule to use ConfigService
-    RestoModule,
+    UserModule,
+    ConfigModule.forRoot({
+      envFilePath: '.env',
+      isGlobal: true,
+    }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, MailService, RestoService], // Include other providers
-  exports: [AuthService], // Export AuthService if it's used outside this module
+  providers: [AuthService, MailService, UserService, JwtAuthGuard, JwtStrategy], // Include JwtStrategy in providers
+  exports: [AuthService, JwtAuthGuard],
 })
 export class AuthModule {}
