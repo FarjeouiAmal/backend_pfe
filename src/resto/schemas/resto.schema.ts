@@ -3,6 +3,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
+
 @Schema({ timestamps: true })
 
 export class Resto {
@@ -21,7 +22,7 @@ export class Resto {
   @Prop()
   name: string;
 
-  @Prop({ unique: [true, 'Duplicate email entered'] })
+  @Prop()
   email: string;
 
   @Prop()
@@ -33,13 +34,14 @@ export class Resto {
 
   @Prop()
   telephone: string;
-
+  
   @Prop({ default: null })
   resetToken: string | null;
 
   @Prop({ default: null })
   resetTokenExpires: Date | null;
 }
+
 
 export type RestoDocument = Resto & Document;
 export const RestoSchema = SchemaFactory.createForClass(Resto);

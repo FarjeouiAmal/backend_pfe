@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { RestoController } from './resto.controller';
 import { RestoService } from './resto.service';
-import { MongooseModule } from '@nestjs/mongoose';
-import { Resto, RestoSchema } from './schemas/resto.schema';
+import { Resto } from './entity/resto.entity';
+import { Menu } from './entity/menu.entity';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: 'Resto', schema: RestoSchema }])],
+  imports: [TypeOrmModule.forFeature([Resto, Menu])],
   controllers: [RestoController],
   providers: [RestoService],
-  exports: [RestoService], // Update export token to service class
 })
 export class RestoModule {}
