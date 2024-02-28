@@ -5,10 +5,11 @@ import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { User } from './entity/user.entity';
 import { UserSchema } from './entity/user.entity';
-import { APP_GUARD } from '@nestjs/core';
-import { RolesGuard } from 'src/auth/Roles/roles.guard';
-import { RestoRoles } from 'src/auth/Roles/resto-roles.guard';
-import { AdminRoles } from 'src/auth/Roles/admin-roles.guard';
+import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
+//import { APP_GUARD } from '@nestjs/core';
+// import { RolesGuard } from 'src/auth/Roles/roles.guard';
+// import { RestoRoles } from 'src/auth/Roles/resto-roles.guard';
+// import { AdminRoles } from 'src/auth/Roles/admin-roles.guard';
 
 @Module({
   imports: [
@@ -17,10 +18,10 @@ import { AdminRoles } from 'src/auth/Roles/admin-roles.guard';
   controllers: [UserController],
   providers: [
     UserService,
-    RolesGuard,
-    { provide: APP_GUARD, useClass: RolesGuard },
-    { provide: APP_GUARD, useValue: RestoRoles },  // Update this line
-    { provide: APP_GUARD, useValue: AdminRoles}, 
+    // RolesGuard,
+    // { provide: APP_GUARD, useClass: RolesGuard },
+    // { provide: APP_GUARD, useValue: RestoRoles },  // Update this line
+    // { provide: APP_GUARD, useValue: AdminRoles}, 
   ],
 })
 export class UserModule {}

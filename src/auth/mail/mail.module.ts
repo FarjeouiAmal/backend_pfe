@@ -12,7 +12,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MailService } from 'src/auth/mail/mail.service';
 import { UserService } from 'src/users/user.service';
 import { UserModule } from 'src/users/user.module';
-import { RestoSchema } from 'src/resto/schemas/resto.schema';
+
 
 @Module({
   imports: [
@@ -29,10 +29,6 @@ import { RestoSchema } from 'src/resto/schemas/resto.schema';
     MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
     ConfigModule, // Include ConfigModule to use ConfigService
     UserModule, // Include RestoModule in the imports array
-
-    MongooseModule.forFeature([{ name: 'Resto', schema: RestoSchema }]),
-    ConfigModule, // Include ConfigModule to use ConfigService
-    UserModule,
 
     MailerModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({

@@ -1,4 +1,6 @@
-import { Injectable, UnauthorizedException, BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
+// auth.service.ts
+
+import { Injectable, UnauthorizedException, BadRequestException, UseGuards } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
@@ -6,13 +8,11 @@ import { JwtService } from '@nestjs/jwt';
 import { SignInDto } from './dto/SignIn.dto';
 import { MailerService } from '@nestjs-modules/mailer';
 import { UserService } from 'src/users/user.service';
-import * as crypto from 'crypto'; // Import the crypto module
+import * as crypto from 'crypto';
 import { User, UserDocument } from 'src/users/entity/user.entity';
-
 
 @Injectable()
 export class AuthService {
-  [x: string]: any;
   constructor(
     @InjectModel(User.name)
     private UserModel: Model<UserDocument>,
@@ -107,11 +107,7 @@ export class AuthService {
       const decoded = this.jwtService.verify(token);
       return decoded;
     } catch (error) {
-      // Token is invalid or expired
       throw new UnauthorizedException('Invalid or expired token');
     }
   }
-
-
-  
-  }
+}

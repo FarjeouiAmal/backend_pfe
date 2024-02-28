@@ -12,10 +12,19 @@ export class UserService {
     private  userModel: Model<UserDocument>,
   ) {}
 
-  async createUser(createUserDto: CreateUserDto): Promise<User> {
+
+  async createUser(createUserDto: CreateUserDto, role: string = 'user'): Promise<User> {
+    // Check if the role is provided in the createUserDto
+    const userRole = createUserDto.role ? createUserDto.role : role;
+  
+    // Set the role in the createUserDto
+    createUserDto.role = userRole;
+  
     const user = new this.userModel(createUserDto);
     return await user.save();
   }
+
+
 
   async updateUser(id: string, updateUserDto: Partial<UpdateUserDto>): Promise<User> {
     const user = await this.userModel.findByIdAndUpdate(id, updateUserDto, { new: true });

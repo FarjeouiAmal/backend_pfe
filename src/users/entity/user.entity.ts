@@ -1,10 +1,21 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+// user.entity.ts
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { Menu } from 'src/menu/entity/menu.entity';
+import { Repas } from 'src/repas/entity/repas.entity';
+import { Categorie } from 'src/catégorie/entity/categorie.entity'; // Import Categorie entity
+
+export enum UserRole {
+  RESTO = 'resto',
+  ADMIN = 'admin',
+  LIVREUR = 'livreur',
+  CONSOMMATEUR = 'consommateur',
+}
 
 @Entity('users')
-@Schema({ timestamps: true }) // Ajout du schéma Mongoose
-export class User  {
+@Schema({ timestamps: true })
+export class User {
   @PrimaryGeneratedColumn()
   id: string;
 
@@ -12,7 +23,7 @@ export class User  {
   @Column()
   name: string;
 
-  @Prop({ required: true, unique: true }) // Ajout des options Mongoose
+  @Prop({ required: true, unique: true })
   @Column()
   email: string;
 
@@ -29,8 +40,17 @@ export class User  {
   adresse: string;
 
   @Prop({ required: true })
-  @Column()
-  role: string;
+  @Column({ type: 'enum', enum: UserRole, default: UserRole.CONSOMMATEUR })
+  role: UserRole;
+
+  @OneToMany(() => Menu, menu => menu.user)
+  menus: Menu[];
+
+  @OneToMany(() => Repas, repas => repas.categorie)
+  repas: Repas[];
+
+  @OneToMany(() => Categorie, categorie =>  categorie.user) // Establishing the relationship with Categorie
+  categories: Categorie[];
 
   @Prop()
   @Column({ nullable: true })
@@ -41,11 +61,9 @@ export class User  {
   resetToken: string;
 
   save(): User | PromiseLike<User> {
-        throw new Error('Method not implemented.');
-      }
-      
+    throw new Error('Method not implemented.');
+  }
 }
-
 
 export const UserSchema = SchemaFactory.createForClass(User);
 export type UserDocument = User & Document;

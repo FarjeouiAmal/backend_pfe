@@ -6,7 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { MailModule } from './auth/mail/mail.module';
-import { AuthenticationMiddleware } from './auth/authentication.middleware';
+
 
 
 @Module({
@@ -26,7 +26,8 @@ import { AuthenticationMiddleware } from './auth/authentication.middleware';
 
   
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthenticationMiddleware).forRoutes('*');
-  }}
+export class AppModule  {
+  // configure(consumer: MiddlewareConsumer) {
+  //   consumer.apply(AuthenticationMiddleware).forRoutes('*');
+  // }
+}
