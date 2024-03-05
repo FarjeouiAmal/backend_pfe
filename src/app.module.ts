@@ -6,6 +6,10 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { MailModule } from './auth/mail/mail.module';
+import { RepasModule } from './repas/repas.module';
+import { CategorieModule } from './catégorie/categorie.module';
+import { MenuModule } from './menu/menu.module';
+
 
 
 
@@ -19,7 +23,10 @@ import { MailModule } from './auth/mail/mail.module';
     UserModule,
     AuthModule,
     MailModule,
-  
+    RepasModule,
+    CategorieModule,
+    MenuModule,
+
   ],
   controllers: [AppController],
   providers: [AppService],

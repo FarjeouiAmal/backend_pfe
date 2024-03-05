@@ -17,13 +17,13 @@ export class MenuController {
 
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  async updateMenu(@Request() req, @Param('id') id: number, @Body() updateMenuDto: UpdateMenuDto) {
+  async updateMenu(@Request() req, @Param('id') id: string, @Body() updateMenuDto: UpdateMenuDto) {
     return this.menuService.updateMenu(id, updateMenuDto);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  async deleteMenu(@Request() req, @Param('id') id: number) {
+  async deleteMenu(@Request() req, @Param('id') id: string) {
     return this.menuService.deleteMenu(id);
   }
 }

@@ -1,27 +1,92 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User, UserDocument } from './entity/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
+import * as bcrypt from 'bcryptjs';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User.name)
     private  userModel: Model<UserDocument>,
+    private jwtService: JwtService,
   ) {}
 
 
-  async createUser(createUserDto: CreateUserDto, role: string = 'user'): Promise<User> {
-    // Check if the role is provided in the createUserDto
-    const userRole = createUserDto.role ? createUserDto.role : role;
-  
-    // Set the role in the createUserDto
-    createUserDto.role = userRole;
-  
+  async createUser(createUserDto: CreateUserDto): Promise<User> {
+    // Hash the password before saving the user
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    createUserDto.password = hashedPassword;
+
+    // Create the user
     const user = new this.userModel(createUserDto);
-    return await user.save();
+    const createdUser = await user.save();
+
+    return createdUser;
+  }
+
+  async createResto(createUserDto: CreateUserDto, authorizationHeader: string): Promise<User> {
+    // Decode the token to get user information
+    const decodedToken = this.decodeTokenFromHeader(authorizationHeader);
+  
+    // Check if the user has admin role
+    if (decodedToken.role !== 'admin') {
+      throw new ForbiddenException('Only admins can create restos');
+    }
+  
+    // Set the role for the user being created
+    createUserDto.role = 'resto';
+  
+    // Hash the password before saving the user
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    createUserDto.password = hashedPassword;
+  
+    // Perform the resto creation logic here...
+    // ...
+  
+    // Create the user
+    const user = new this.userModel(createUserDto);
+    console.log(user)
+    const createdUser = await user.save();
+  
+    return createdUser;
+  }
+  
+  async createLivreur(createUserDto: CreateUserDto, authorizationHeader: string): Promise<User> {
+    // Decode the token to get user information
+    const decodedToken = this.decodeTokenFromHeader(authorizationHeader);
+  
+    // Check if the user has resto role
+    if (decodedToken.role !== 'resto') {
+      throw new ForbiddenException('Only restos can create livreurs');
+    }
+  
+    // Set the role for the user being created
+    //createUserDto.role = 'livreur';
+  
+    // Hash the password before saving the user
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    createUserDto.password = hashedPassword;
+  
+    // Perform the livreur creation logic here...
+    // ...
+  
+    // Create the user
+    const user = new this.userModel(createUserDto);
+    console.log(user)
+    const createdUser = await user.save();
+  
+    return createdUser;
+  }
+  
+  // Helper method to decode token from Authorization header
+  private decodeTokenFromHeader(authorizationHeader: string): any {
+    const token = authorizationHeader.split(' ')[1];
+    const decodedToken = this.jwtService.decode(token);
+    return decodedToken;
   }
 
 

@@ -4,7 +4,7 @@ export class PasswordResetDto {
   @IsNotEmpty()
   @IsString()
   @MinLength(6)
-  readonly newPassword: string;
+  newPassword: string;
 
   // Add other validation rules as needed
 }

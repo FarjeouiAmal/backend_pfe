@@ -1,7 +1,7 @@
-// create-category.dto.ts
+// create-categorie.dto.ts
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class CreateCategoryDto {
+export class CreateCategorieDto {
   @IsNotEmpty()
   @IsString()
   readonly name: string;

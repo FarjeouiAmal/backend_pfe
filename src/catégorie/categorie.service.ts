@@ -1,58 +1,64 @@
 // categorie.service.ts
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { Categorie } from './entity/categorie.entity';
-import { CreateCategoryDto } from './dto/create-category.dto';
-import { UpdateCategoryDto } from './dto/update-category.dto';
+import { CreateCategorieDto } from './dto/create-categorie.dto';
+import { UpdateCategorieDto } from './dto/update-categorie.dto';
 import { User } from 'src/users/entity/user.entity';
 
 @Injectable()
-export class CategoryService {
+export class CategorieService {
   constructor(
-    @InjectRepository(Categorie)
-    private categoryRepository: Repository<Categorie>,
+    @InjectModel(Categorie.name)
+    private readonly categorieModel: Model<Categorie>,
   ) {}
 
-  async createCategory(user: User, createCategoryDto: CreateCategoryDto): Promise<Categorie> {
+  async createCategorie(user: User, createCategorieDto: CreateCategorieDto): Promise<Categorie> {
     if (user.role !== 'resto') {
       throw new ForbiddenException('Only users with the role "resto" can create categories.');
     }
 
-    const category = this.categoryRepository.create({ user, ...createCategoryDto });
-    return await this.categoryRepository.save(category);
+    const categorie = new this.categorieModel({ user, ...createCategorieDto });
+    return await categorie.save();
   }
 
-  async updateCategory(id: string, updateCategoryDto: UpdateCategoryDto): Promise<Categorie> {
-    const category = await this.categoryRepository.findOne({ relations: ['user'] });
+  async updateCategorie(id: string, updateCategorieDto: UpdateCategorieDto): Promise<Categorie> {
+    const categorie = await this.categorieModel.findById(id);
 
-    if (!category) {
-      throw new NotFoundException(`Category with ID ${id} not found`);
+    if (!categorie) {
+      throw new NotFoundException(`Categorie with ID ${id} not found`);
     }
 
     // Ensure the user has the role "resto" to update the category
     // You may customize this logic based on your requirements
-    if (category.user.role !== 'resto') {
-      throw new ForbiddenException('Only users with the role "resto" can update this category.');
+    if (categorie.user.role !== 'resto') {
+      throw new ForbiddenException('Only users with the role "resto" can update this categorie.');
     }
 
-    Object.assign(category, updateCategoryDto);
-    return await this.categoryRepository.save(category);
+    Object.assign(categorie, updateCategorieDto);
+    return await categorie.save();
   }
 
-  async deleteCategory(id: number): Promise<void> {
-    const category = await this.categoryRepository.findOne({ relations: ['user'] });
+  async deleteCategorie(id: number): Promise<void> {
+    const result = await this.categorieModel.deleteOne({ _id: id });
 
-    if (!category) {
-      throw new NotFoundException(`Category with ID ${id} not found`);
+    if (result.deletedCount === 0) {
+      throw new NotFoundException(`Categorie with ID ${id} not found`);
+    }
+  }
+
+  async getAllCategories(): Promise<Categorie[]> {
+    return this.categorieModel.find().exec();
+  }
+
+  async getCategoryById(id: string): Promise<Categorie> {
+    const categorie = await this.categorieModel.findById(id);
+
+    if (!categorie) {
+      throw new NotFoundException(`Categorie with ID ${id} not found`);
     }
 
-    // Ensure the user has the role "resto" to delete the category
-    // You may customize this logic based on your requirements
-    if (category.user.role !== 'resto') {
-      throw new ForbiddenException('Only users with the role "resto" can delete this category.');
-    }
-
-    await this.categoryRepository.remove(category);
+    return categorie;
   }
 }

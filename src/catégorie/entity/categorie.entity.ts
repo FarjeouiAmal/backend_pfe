@@ -1,15 +1,17 @@
 // categorie.entity.ts
-import { Entity, PrimaryGeneratedColumn, ManyToOne, OneToMany } from 'typeorm';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
+import { User } from 'src/users/entity/user.entity';
 import { Menu } from 'src/menu/entity/menu.entity';
 import { Repas } from 'src/repas/entity/repas.entity';
-import { User } from 'src/users/entity/user.entity';
+import { PrimaryGeneratedColumn, ManyToOne, OneToMany } from 'typeorm';
 
-@Entity()
+@Schema()
 export class Categorie {
   @PrimaryGeneratedColumn()
   id: string;
 
-  @ManyToOne(() => User, user => user.categories) // Assuming you have a 'categories' property in the User entity
+  @ManyToOne(() => User, user => user.categories)
   user: User;
 
   @ManyToOne(() => Menu, menu => menu.categories)
@@ -18,3 +20,5 @@ export class Categorie {
   @OneToMany(() => Repas, repas => repas.categorie)
   repas: Repas[];
 }
+
+export const CategorieSchema = SchemaFactory.createForClass(Categorie);

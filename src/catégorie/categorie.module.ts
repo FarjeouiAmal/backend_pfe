@@ -1,13 +1,15 @@
-// category.module.ts
+// categorie.module.ts
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { CategoryController } from './categorie.controller';
-import { CategoryService } from './categorie.service';
-import { Categorie } from './entity/categorie.entity';
+import { MongooseModule } from '@nestjs/mongoose';
+import { CategorieController } from './categorie.controller';
+import { CategorieService } from './categorie.service';
+import { Categorie, CategorieSchema } from './entity/categorie.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Categorie])],
-  controllers: [CategoryController],
-  providers: [CategoryService],
+  imports: [
+    MongooseModule.forFeature([{ name: Categorie.name, schema: CategorieSchema }]),
+  ],
+  controllers: [CategorieController],
+  providers: [CategorieService],
 })
-export class CategoryModule {}
+export class CategorieModule {}

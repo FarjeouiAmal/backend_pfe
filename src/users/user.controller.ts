@@ -1,4 +1,4 @@
-import { Body, Controller, UseGuards, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, UseGuards, Delete, Get, Param, Post, Put, Headers } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
@@ -6,6 +6,8 @@ import { UserService } from './user.service';
 // import { RestoRoles } from 'src/auth/Roles/resto-roles.guard';
  import { RolesGuard } from 'src/auth/Roles/roles.guard';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
+import { UserRole } from './entity/user.entity';
+import { Admin, Resto } from 'src/auth/Roles/adminResto.decorator';
 
 
 @Controller('users')
@@ -21,35 +23,28 @@ export class UserController {
   @Post()
   @UseGuards(RolesGuard)
   async createUser(@Body() createUserDto: CreateUserDto) {
-    const { role, ...rest } = createUserDto; // Extract 'role' separately
-    return this.userService.createUser({ ...rest, role });
+    return this.userService.createUser(createUserDto);
   }
 
-@Post('create-resto')
-@UseGuards(RolesGuard)
-async createResto(@Body() createUserDto: CreateUserDto) {
-  // Ensure only admins can create restos
-  const { role, ...rest } = createUserDto; // Extract 'role' separately
-  return this.userService.createUser({ ...rest, role: 'resto' });
-}
+  @Post('/create-resto')
+  @UseGuards(JwtAuthGuard)
+  async createResto(@Body() createUserDto: CreateUserDto, @Headers('authorization') authorizationHeader: string) {
+    return this.userService.createResto(createUserDto, authorizationHeader);
+  }
+  
+  @Post('/create-livreur')
+  @UseGuards(JwtAuthGuard)
+  async createLivreur(@Body() createUserDto: CreateUserDto, @Headers('authorization') authorizationHeader: string) {
+    return this.userService.createLivreur(createUserDto, authorizationHeader);
+  }
 
-@Post('create-livreur')
-@UseGuards(RolesGuard)
-async createLivreur(@Body() createUserDto: CreateUserDto) {
-  // Ensure only restos can create livreurs
-  const { role, ...rest } = createUserDto; // Extract 'role' separately
-  return this.userService.createUser({ ...rest, role: 'livreur' });
-}
-
-
-
-  @Put(':id')
+  @Put('/:id')
   async updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.updateUser(id, updateUserDto);
   }
 
   @UseGuards(RolesGuard, JwtAuthGuard)
-  @Get(':id')
+  @Get('/:id')
   async getUserById(@Param('id') id: string) {
     return this.userService.getUserById(id);
   }
@@ -71,6 +66,7 @@ async createLivreur(@Body() createUserDto: CreateUserDto) {
     return this.userService.getUserByTelephone(telephone);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async deleteUser(@Param('id') id: string) {
     return this.userService.deleteUserById(id);

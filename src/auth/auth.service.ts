@@ -1,6 +1,6 @@
 // auth.service.ts
 
-import { Injectable, UnauthorizedException, BadRequestException, UseGuards } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
@@ -23,6 +23,7 @@ export class AuthService {
 
   async createDefaultAdmin(): Promise<void> {
     const adminUser = {
+
       email: 'adminadmin@gmail.com',
       password: 'admin123',
       name: 'admin',
@@ -42,33 +43,58 @@ export class AuthService {
     }
   }
 
-  async signIn(signInDto: SignInDto): Promise<{ token: string }> {
-    const { email, password } = signInDto;
+  async registerUser(userDto: any): Promise<void> {
+    const { email, password, name, role } = userDto;
 
-    // Check if the user with the provided credentials exists
-    const user = await this.UserModel.findOne({ email });
+    // Check if the user already exists
+    const existingUser = await this.UserModel.findOne({ email });
 
-    if (user && (await bcrypt.compare(password, user.password))) {
-      // Generate and return the token
-      const token = this.jwtService.sign({ id: user._id, name: user.name, email: user.email, role: user.role });
-      return { token };
-    } else {
-      // Handle invalid credentials
-      throw new UnauthorizedException('Invalid credentials');
+    if (!existingUser) {
+      // Hash the password before saving the user
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Create the user
+      await this.UserModel.create({
+        email,
+        password: hashedPassword,
+        name,
+        role,
+      });
     }
   }
 
-  async sendPasswordResetEmail(email: string): Promise<void> {
-    const resto = await this.userService.findByEmail(email); // Use restoService instead of userService
-    if (resto) {
-      const resetToken = crypto.randomBytes(32).toString('hex'); // Generate a secure random token
-      resto.resetToken = resetToken;
-      resto.resetTokenExpires = new Date(Date.now() + 3600000); // Token valid for 1 hour
-      await this.userService.save(resto);
+  async signIn(signInDto: SignInDto): Promise<{ token: string }> {
+    const { email, password } = signInDto;
+  
+    const user = await this.UserModel.findOne({ email: email.trim() });
+  
+    if (user) {
+      const passwordMatches = await bcrypt.compare(password, user.password);
+  
+      if (passwordMatches) {
+        const { _id, name, email, role } = user;
+        const token = this.jwtService.sign({ id: _id, name, email, role });
+        return { token };
+      } else {
+        throw new UnauthorizedException('Invalid credentials');
+      }
+    } else {
+      throw new UnauthorizedException('User not found');
+    }
+  }
+  
 
-      // Send reset email
+  async sendPasswordResetEmail(email: string): Promise<void> {
+    const user = await this.userService.findByEmail(email);
+
+    if (user) {
+      const resetToken = crypto.randomBytes(32).toString('hex');
+      user.resetToken = resetToken;
+      user.resetTokenExpires = new Date(Date.now() + 3600000);
+      await this.userService.save(user);
+
       await this.mailerService.sendMail({
-        to: resto.email,
+        to: user.email,
         subject: 'Password Reset',
         template: 'password-reset',
         context: {
@@ -79,7 +105,6 @@ export class AuthService {
   }
 
   async resetPassword(token: string, newPassword: string): Promise<void> {
-    // Find user by reset token and check if it's still valid
     const user = await this.UserModel.findOne({
       resetToken: token,
       resetTokenExpires: { $gt: new Date() },
@@ -89,12 +114,10 @@ export class AuthService {
       throw new UnauthorizedException('Invalid or expired token');
     }
 
-    // Update password if the token is valid
     user.password = await bcrypt.hash(newPassword, 10);
     user.resetToken = null;
     user.resetTokenExpires = null;
 
-    // Save the updated user data
     try {
       await user.save();
     } catch (error) {

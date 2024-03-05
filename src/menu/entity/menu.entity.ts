@@ -1,10 +1,11 @@
 // menu.entity.ts
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany } from 'typeorm';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 import { User } from 'src/users/entity/user.entity';
-import { Categorie } from 'src/catégorie//entity/categorie.entity';
+import { Categorie, CategorieSchema } from 'src/catégorie/entity/categorie.entity';
+import { PrimaryGeneratedColumn, ManyToOne, OneToMany } from 'typeorm';
 
-
-@Entity()
+@Schema()
 export class Menu {
   @PrimaryGeneratedColumn()
   id: number;
@@ -12,6 +13,8 @@ export class Menu {
   @ManyToOne(() => User, user => user.menus)
   user: User;
 
-  @OneToMany(() => Categorie, categorie => categorie.menu)
+  @OneToMany(() => Categorie, categorie => categorie.menu) // Specify target type and inverse side
   categories: Categorie[];
 }
+
+export const MenuSchema = SchemaFactory.createForClass(Menu);

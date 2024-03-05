@@ -1,7 +1,7 @@
-// update-category.dto.ts
+// update-categorie.dto.ts
 import { IsNotEmpty, IsString, IsOptional } from 'class-validator';
 
-export class UpdateCategoryDto {
+export class UpdateCategorieDto {
   @IsOptional()
   @IsNotEmpty()
   @IsString()

@@ -10,11 +10,15 @@ import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
 // import { RolesGuard } from 'src/auth/Roles/roles.guard';
 // import { RestoRoles } from 'src/auth/Roles/resto-roles.guard';
 // import { AdminRoles } from 'src/auth/Roles/admin-roles.guard';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    JwtModule.register({}),
+  
   ],
+  
   controllers: [UserController],
   providers: [
     UserService,

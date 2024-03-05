@@ -1,4 +1,4 @@
-// // resto-roles.guard.ts
+// // resto.decorator.ts
 // import { SetMetadata } from '@nestjs/common';
 
-// export const RestoRoles = (...roles: string[]) => SetMetadata('roles', roles);
+// export const Resto = () => SetMetadata('roles', ['resto']);
