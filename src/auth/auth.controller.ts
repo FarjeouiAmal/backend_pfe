@@ -10,7 +10,7 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
  
-  @Post('/signin')
+  @Post('signin')
   async signIn(@Body() signInDto: SignInDto): Promise<{ token: string }> {
     try {
       const result = await this.authService.signIn(signInDto);

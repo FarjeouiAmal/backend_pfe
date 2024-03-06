@@ -13,8 +13,16 @@ async function bootstrap() {
   // Utiliser un tuyau de validation globale (par exemple, class-validator)
   app.useGlobalPipes(new ValidationPipe());
 
+   // Enable CORS
+   app.enableCors({
+    origin: 'http://localhost:3003', // Update with your actual frontend origin
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+    optionsSuccessStatus: 204,
+  });
+  
   //app.use(AuthenticationMiddleware);
 
-  await app.listen(5001);
+  await app.listen(3004);
 }
 bootstrap();
